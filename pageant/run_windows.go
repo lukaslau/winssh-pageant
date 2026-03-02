@@ -182,20 +182,21 @@ func (p *Pageant) wndProc(hWnd win.HWND, message uint32, wParam uintptr, lParam 
 			// check security
 			ourself, err := security.GetUserSID()
 			if err != nil {
-				log.Println(err)
+				log.Printf("Security: failed to get current user SID: %v\n", err)
 				return 0
 			}
 			ourself2, err := security.GetDefaultSID()
 			if err != nil {
-				log.Println(err)
+				log.Printf("Security: failed to get default SID: %v\n", err)
 				return 0
 			}
 			mapOwner, err := security.GetHandleSID(fileMap)
 			if err != nil {
-				log.Println(err)
+				log.Printf("Security: failed to get file mapping owner SID: %v\n", err)
 				return 0
 			}
 			if !windows.EqualSid(mapOwner, ourself) && !windows.EqualSid(mapOwner, ourself2) {
+				log.Printf("Security: rejecting request from non-matching SID %s\n", mapOwner.String())
 				return 0
 			}
 
