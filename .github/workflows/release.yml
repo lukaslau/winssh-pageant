@@ -51,13 +51,13 @@ jobs:
       shell: pwsh
       
     - name: Upload checksums
-      uses: actions/upload-artifact@v2.2.2
+      uses: actions/upload-artifact@v3
       with:
         name: checksums
         path: checksums.md
         
     - name: Upload Binaries
-      uses: actions/upload-artifact@v2.2.2
+      uses: actions/upload-artifact@v3
       with:
         name: release
         path: release/
