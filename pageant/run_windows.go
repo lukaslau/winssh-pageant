@@ -226,11 +226,10 @@ func (p *Pageant) wndProc(hWnd win.HWND, message uint32, wParam uintptr, lParam 
 			}
 			copy(sharedMemoryArray[:], result)
 
-			// success, explicitly Clean up some resources (better to be certain it get's GC'd)
-			ourself = nil
-			ourself2 = nil
-			mapOwner = nil
-			sharedMemoryArray = nil
+			// Securely zero sensitive data before release
+			for i := range result {
+				result[i] = 0
+			}
 			result = nil
 
 			return 1
