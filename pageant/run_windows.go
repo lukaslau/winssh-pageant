@@ -258,8 +258,10 @@ func capiObfuscateString(realname string) string {
 	cbDataIn := uintptr(cryptlen)
 	dwFlags := uintptr(CRYPTPROTECTMEMORY_CROSS_PROCESS)
 
-	//revive:disable:unhandled-error  - pageant ignores errors
-	procCryptProtectMemory.Call(pDataIn, cbDataIn, dwFlags)
+	ret, _, _ := procCryptProtectMemory.Call(pDataIn, cbDataIn, dwFlags)
+	if ret == 0 {
+		log.Println("CryptProtectMemory failed, pipe name obfuscation may be weakened")
+	}
 
 	hash := sha256.Sum256(cryptdata)
 	return hex.EncodeToString(hash[:])
