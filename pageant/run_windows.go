@@ -269,7 +269,18 @@ func (p *Pageant) pipeProxy() {
 
 	namePart := strings.Split(currentUser.Username, `\`)[1]
 	pipeName := fmt.Sprintf(agentPipeName, namePart, capiObfuscateString(wndClassName))
-	listener, err := winio.ListenPipe(pipeName, nil)
+
+	// Restrict pipe access to the current user's SID only
+	sid, sidErr := security.GetUserSID()
+	if sidErr != nil {
+		log.Printf("Pipe: cannot get user SID for pipe ACL: %v\n", sidErr)
+		return
+	}
+	sddl := fmt.Sprintf("D:(A;;GA;;;%s)", sid.String())
+	pipeConfig := &winio.PipeConfig{
+		SecurityDescriptor: sddl,
+	}
+	listener, err := winio.ListenPipe(pipeName, pipeConfig)
 	if err != nil {
 		log.Println(err)
 	} else {
