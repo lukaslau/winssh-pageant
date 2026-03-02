@@ -298,6 +298,10 @@ func (p *Pageant) pipeListen(pageantConn net.Conn) {
 		}
 
 		bufferLen := binary.BigEndian.Uint32(lenBuf)
+		if bufferLen > openssh.AgentMaxMessageLength-4 {
+			log.Printf("Pipe: message too long (%d bytes)\n", bufferLen)
+			return
+		}
 		readBuf := make([]byte, bufferLen)
 		_, err = io.ReadFull(reader, readBuf)
 		if err != nil {
