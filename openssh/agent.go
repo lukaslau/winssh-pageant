@@ -56,8 +56,8 @@ func QueryAgent(pipeName string, buf []byte) (result []byte, err error) {
 	}
 	messageSize := binary.BigEndian.Uint32(messageSizeBuf)
 
-	if messageSize == 0 {
-		fmt.Printf("Invalid zero-length message from pipe %s\n", pipeName)
+	if messageSize == 0 || messageSize-1 > AgentMaxMessageLength {
+		fmt.Printf("Invalid or oversized message (%d bytes) from pipe %s\n", messageSize, pipeName)
 		return genericFail, nil
 	}
 
