@@ -267,7 +267,8 @@ func (p *Pageant) pipeProxy() {
 		log.Println(err)
 	}
 
-	namePart := strings.Split(currentUser.Username, `\`)[1]
+	parts := strings.Split(currentUser.Username, `\`)
+	namePart := parts[len(parts)-1]
 	pipeName := fmt.Sprintf(agentPipeName, namePart, capiObfuscateString(wndClassName))
 
 	// Restrict pipe access to the current user's SID only
