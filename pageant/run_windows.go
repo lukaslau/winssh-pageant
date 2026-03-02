@@ -220,6 +220,10 @@ func (p *Pageant) wndProc(hWnd win.HWND, message uint32, wParam uintptr, lParam 
 				log.Printf("Error in PageantRequestHandler: %+v\n", err)
 				return 0
 			}
+			if len(result) > openssh.AgentMaxMessageLength {
+				log.Printf("Response too large (%d bytes), dropping\n", len(result))
+				return 0
+			}
 			copy(sharedMemoryArray[:], result)
 
 			// success, explicitly Clean up some resources (better to be certain it get's GC'd)
