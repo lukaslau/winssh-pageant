@@ -210,10 +210,15 @@ func (p *Pageant) wndProc(hWnd win.HWND, message uint32, wParam uintptr, lParam 
 
 			sharedMemoryArray := (*[openssh.AgentMaxMessageLength]byte)(unsafe.Pointer(sharedMemory))
 
-			size := binary.BigEndian.Uint32(sharedMemoryArray[:4]) + 4 // +4 for the size uint itself
-			if size > openssh.AgentMaxMessageLength {
+			messageLen := binary.BigEndian.Uint32(sharedMemoryArray[:4])
+			// Validate: must have at least 1 byte of payload (message type),
+			// total size (header + payload) must not exceed buffer, and
+			// guard against uint32 overflow when adding header size
+			if messageLen == 0 || messageLen > openssh.AgentMaxMessageLength-4 {
+				log.Printf("Invalid shared memory message length: %d\n", messageLen)
 				return 0
 			}
+			size := messageLen + 4 // +4 for the size uint itself
 
 			// Query the windows OpenSSH agent via the windows named pipe
 			result, err := p.PageantRequestHandler(p, sharedMemoryArray[:size])
